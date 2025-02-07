@@ -11,6 +11,7 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -33,13 +34,25 @@ public class DailyForeignExchangeRatesScheduled {
     @Value("${exchange.rate.url}")
     private String exchangeRateUrl;
 
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
     private Gson gson = new Gson();
 
     // 初始化時執行 doGetDailyForeignExchangeRates避免啟動時沒有資料
     @PostConstruct
     public void init() throws IOException, ParseException {
+        // 檢查資料庫是否已有資料表
+        if (!mongoTemplate.collectionExists(ExchangeRate.class)) {
+            // 如果沒有資料表，則創建它
+            mongoTemplate.createCollection(ExchangeRate.class);
+            System.out.println("資料庫中沒有資料表，已創建資料表。");
+        } else {
+            System.out.println("資料庫中已有資料表。");
+        }
         doGetDailyForeignExchangeRates();
     }
+
     /*
      * 每天下午 6 點執行一次
      */
@@ -59,7 +72,7 @@ public class DailyForeignExchangeRatesScheduled {
         // 逐筆處理匯率資料
         for (Map<String, String> rate : exchangeRates) {
             if (rate == null) {
-                continue; 
+                continue;
             }
 
             String dateToSearch = rate.get("Date").trim();
