@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API測試</title>
+</head>
+<body>
+    <h1>API測試</h1>
+    <form id="apiTestForm">
+        <label for="startDate">開始日期：</label>
+        <input type="text" id="startDate" name="startDate" placeholder="YYYYMMDD"><br><br>
+        <label for="endDate">結束日期：</label>
+        <input type="text" id="endDate" name="endDate" placeholder="YYYYMMDD"><br><br>
+        <label for="currency">貨幣：</label>
+        <input type="text" id="currency" name="currency" placeholder="USD"><br><br>
+        <button type="button" onclick="sendRequest()">發送請求</button>
+    </form>
+    <div id="response"></div>
+
+    <script>
+        function sendRequest() {
+            var startDate = document.getElementById("startDate").value;
+            var endDate = document.getElementById("endDate").value;
+            var currency = document.getElementById("currency").value;
+
+            var requestData = {
+                startDate: startDate,
+                endDate: endDate,
+                currency: currency
+            };
+
+            fetch('/forex', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                document.getElementById("response").innerHTML = JSON.stringify(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>

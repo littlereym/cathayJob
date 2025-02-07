@@ -1,0 +1,103 @@
+package com.exchangerat.job;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.anyString;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.when;
+import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import com.exchangerat.job.Scheduled.DailyForeignExchangeRatesScheduled;
+import com.exchangerat.job.model.ExchangeRate.ExchangeRate;
+import com.exchangerat.job.model.ExchangeRate.ExchangeRateOutPut;
+import com.exchangerat.job.repository.ExchangeRateRepository;
+import com.exchangerat.job.service.imp.ExchangeRateMongoServiceImp;
+import com.exchangerat.job.util.UrlUtil;
+import com.google.gson.Gson;
+
+@SpringBootTest
+class JobApplicationTests {
+
+    @Mock
+    private UrlUtil urlUtil;
+
+    @Mock
+    private ExchangeRateRepository exchangeRateRepository;
+
+    @InjectMocks
+    private ExchangeRateMongoServiceImp exchangeRateMongoServiceImp;
+
+
+    @InjectMocks
+    private DailyForeignExchangeRatesScheduled dailyForeignExchangeRatesScheduled;
+
+    private Gson gson = new Gson();
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void testDoGetDailyForeignExchangeRates() throws IOException, ParseException {
+   
+        String jsonResponse = "[{\"Date\":\"20250102\",\"USD/NTD\":\"32.868\",\"RMB/NTD\":\"4.486909\"}," +
+                "{\"Date\":\"20250103\",\"USD/NTD\":\"32.917\",\"RMB/NTD\":\"4.478983\"}]";
+
+        when(urlUtil.doGet(anyString())).thenReturn(jsonResponse);
+
+        // 模擬查詢結果
+        when(exchangeRateRepository.findByDate("20250102")).thenReturn(null);
+        when(exchangeRateRepository.findByDate("20250103")).thenReturn(null);
+
+        // 執行批次功能
+        dailyForeignExchangeRatesScheduled.doGetDailyForeignExchangeRates();
+
+        
+    }
+
+     @Test
+    void testSelectExchangeRateMongoByDateAndCurrency() {
+       {
+            // 模擬查詢結果
+            ExchangeRate rate1 = new ExchangeRate();
+            rate1.setDate("2025-01-02 00:00:00");
+            Map<String, String> rates1 = new HashMap<>();
+            rates1.put("USD", "32.868");
+            rate1.setRates(rates1);
+    
+            ExchangeRate rate2 = new ExchangeRate();
+            rate2.setDate("2025-01-03 00:00:00");
+            Map<String, String> rates2 = new HashMap<>();
+            rates2.put("USD", "32.917");
+            rate2.setRates(rates2);
+    
+            when(exchangeRateRepository.findByDateBetween(anyString(), anyString())).thenReturn(Arrays.asList(rate1, rate2));
+    
+            // 執行方法
+            ExchangeRateOutPut result = exchangeRateMongoServiceImp.selectExchangeRateMongoByDateAndCurrency("20250101", "20250104", "USD");
+    
+            // 印出結果
+            // for (Map<String, Object> map : result) {
+            //     System.out.println("Date: " + map.get("date"));
+            //     System.out.println("USD: " + map.get("usd"));
+            // }
+    
+            // // 驗證結果
+            // assertEquals(2, result.size());
+            // assertEquals("2025-01-02 00:00:00", result.get(0).get("date"));
+            // assertEquals("32.868", result.get(0).get("usd"));
+            // assertEquals("2025-01-03 00:00:00", result.get(1).get("date"));
+            // assertEquals("32.917", result.get(1).get("usd"));
+        
+    }
+}
+}
