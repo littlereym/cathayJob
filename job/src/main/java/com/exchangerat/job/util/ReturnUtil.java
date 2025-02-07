@@ -1,42 +1,26 @@
 package com.exchangerat.job.util;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
 import com.exchangerat.job.error.ResponseErrorCodeEnum;
-import com.exchangerat.job.model.ReturnModel;
 
 @Component
 public class ReturnUtil  {
     
-    /**
-     * 返回成功
-	 *
-	 * @return json格式字符串
-	 * @throws java.io.IOException
-	 */
-	public static ReturnModel getDataReturn(Object data) throws IOException, URISyntaxException {
+    public static Map<String, Object> getDataReturn(Object data) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("error", ResponseErrorCodeEnum.toErrorResponse(ResponseErrorCodeEnum.SUCCESS));
+        response.put("currency", data);
+        return response;
+    }
 
-		ReturnModel returnModel = new ReturnModel();
-		returnModel.setData(data);
-		return returnModel;
-	}
-    
-	public static ReturnModel getDataReturnError(ResponseErrorCodeEnum dateNotMatch)
-			throws IOException, URISyntaxException {
- 
-		ReturnModel returnModel = new ReturnModel();
-		String errorCode = dateNotMatch.getCode();
-		returnModel.setStatus("0000");
-		// returnModel.setData();
-		returnModel.setErrorCode(errorCode);
-        returnModel.setErrorMsg(ResponseErrorCodeEnum.of(errorCode).getDesc());
- 
-		return returnModel;
-	}
-
-
+    public static Map<String, Object> getDataReturnError(ResponseErrorCodeEnum errorCode) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("error", ResponseErrorCodeEnum.toErrorResponse(errorCode));
+        return response;
+    }
 
 }

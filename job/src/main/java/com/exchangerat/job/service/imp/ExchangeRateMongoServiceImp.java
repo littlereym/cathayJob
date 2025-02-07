@@ -51,13 +51,17 @@ public class ExchangeRateMongoServiceImp implements ExchangeRateMongoService {
     }
 
     @Override
-    public ExchangeRateOutPut selectExchangeRateMongoByDateAndCurrency(String startDate, String endDate, String currency) {
+    public ExchangeRateOutPut selectExchangeRateMongoByDateAndCurrency(Map<String, Object> jSONObject) {
         try {
+
+            String startDate = (String) jSONObject.get("startDate");
+            String endDate = (String) jSONObject.get("endDate");
+            String currency = (String) jSONObject.get("currency");
+
+            
             startDate = TimeUtil.convertToFullFormat(startDate);
             endDate = TimeUtil.convertToFullFormat(endDate);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+      
 
         List<ExchangeRate> list = exchangeRateRepository.findByDateBetween(startDate, endDate);
 
@@ -79,6 +83,10 @@ public class ExchangeRateMongoServiceImp implements ExchangeRateMongoService {
         ExchangeRateOutPut exchangeRateOutPut = new ExchangeRateOutPut();
         exchangeRateOutPut.setCurrency(result);
         return exchangeRateOutPut;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override

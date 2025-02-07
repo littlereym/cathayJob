@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.exchangerat.job.error.ResponseErrorCodeEnum;
+import com.exchangerat.job.model.ExchangeRate.ExchangeRateOutPut;
 import com.exchangerat.job.service.ExchangeRateMongoService;
 import com.exchangerat.job.util.ReturnUtil;
 
@@ -35,11 +36,8 @@ public class mongodbController {
         }
 
         try {
-            String startDateString = (String) jSONObject.get("startDate");
-            String endDateString = (String) jSONObject.get("endDate");
-            String currency = (String) jSONObject.get("currency");
-
-            return ReturnUtil.getDataReturn(exchangeRateMongoService.selectExchangeRateMongoByDateAndCurrency(startDateString, endDateString, currency));
+            ExchangeRateOutPut result = exchangeRateMongoService.selectExchangeRateMongoByDateAndCurrency(jSONObject);
+            return ReturnUtil.getDataReturn(result.getCurrency());
         } catch (Exception e) {
             e.printStackTrace();
             return ReturnUtil.getDataReturnError(ResponseErrorCodeEnum.DATE_NOT_MATCH);

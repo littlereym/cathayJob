@@ -6,13 +6,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.anyString;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.when;
-import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.exchangerat.job.Scheduled.DailyForeignExchangeRatesScheduled;
@@ -21,7 +20,6 @@ import com.exchangerat.job.model.ExchangeRate.ExchangeRateOutPut;
 import com.exchangerat.job.repository.ExchangeRateRepository;
 import com.exchangerat.job.service.imp.ExchangeRateMongoServiceImp;
 import com.exchangerat.job.util.UrlUtil;
-import com.google.gson.Gson;
 
 @SpringBootTest
 class JobApplicationTests {
@@ -36,15 +34,10 @@ class JobApplicationTests {
     private ExchangeRateMongoServiceImp exchangeRateMongoServiceImp;
 
 
-    @InjectMocks
+    @Autowired
     private DailyForeignExchangeRatesScheduled dailyForeignExchangeRatesScheduled;
 
-    private Gson gson = new Gson();
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     void testDoGetDailyForeignExchangeRates() throws IOException, ParseException {
@@ -83,7 +76,15 @@ class JobApplicationTests {
             when(exchangeRateRepository.findByDateBetween(anyString(), anyString())).thenReturn(Arrays.asList(rate1, rate2));
     
             // 執行方法
-            ExchangeRateOutPut result = exchangeRateMongoServiceImp.selectExchangeRateMongoByDateAndCurrency("20250101", "20250104", "USD");
+            Map<String, Object> params = new HashMap<>();
+            params.put("startDate", "20250101");
+            params.put("endDate", "20250104");
+            params.put("currency", "USD");
+
+            ExchangeRateOutPut result = exchangeRateMongoServiceImp.selectExchangeRateMongoByDateAndCurrency(params);
+
+            // Use the result
+            System.out.println(result);
     
             // 印出結果
             // for (Map<String, Object> map : result) {

@@ -12,7 +12,7 @@ public interface ExchangeRateMongoService {
     
     public void saveExchangeRateMongo(ExchangeRate exchangeRate);
 
-    public  ExchangeRateOutPut selectExchangeRateMongoByDateAndCurrency(String startDate, String endDate, String currency);
+    public  ExchangeRateOutPut selectExchangeRateMongoByDateAndCurrency(Map<String, Object> jSONObject);
 
     public Object isValidDateFormat(Map<String, Object> jSONObject);
 
