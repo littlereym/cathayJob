@@ -31,6 +31,7 @@ public class mongodbController {
     public Object getInviteCode(@RequestBody Map<String, Object> jSONObject) throws ParseException, IOException, URISyntaxException {
         List<Map<String, String>> errors = (List<Map<String, String>>) exchangeRateMongoService.isValidDateFormat(jSONObject);
 
+        //格式檢查
         if (!errors.isEmpty()) {
             return ReturnUtil.getDataReturnError(ResponseErrorCodeEnum.DATE_NOT_MATCH);
         }
@@ -43,4 +44,7 @@ public class mongodbController {
             return ReturnUtil.getDataReturnError(ResponseErrorCodeEnum.DATE_NOT_MATCH);
         }
     }
+
+    
+
 }

@@ -29,7 +29,6 @@ public class ExchangeRateMongoServiceImp implements ExchangeRateMongoService {
 
     @Override
     public void saveExchangeRateMongo(ExchangeRate exchangeRate) {
-        // 实现保存逻辑
         Map<String, String> filteredRates = new HashMap<>();
         for (Map.Entry<String, String> entry : exchangeRate.getRates().entrySet()) {
             if (entry.getKey().endsWith("/NTD")) {
@@ -39,7 +38,7 @@ public class ExchangeRateMongoServiceImp implements ExchangeRateMongoService {
         }
         exchangeRate.setRates(filteredRates);
 
-        // 转换日期格式
+        
         try {
             String formattedDate = TimeUtil.convertToFullFormat(exchangeRate.getDate());
             exchangeRate.setDate(formattedDate);
@@ -57,32 +56,23 @@ public class ExchangeRateMongoServiceImp implements ExchangeRateMongoService {
             String startDate = (String) jSONObject.get("startDate");
             String endDate = (String) jSONObject.get("endDate");
             String currency = (String) jSONObject.get("currency");
-
-            
+            currency = currency.toUpperCase();
             startDate = TimeUtil.convertToFullFormat(startDate);
             endDate = TimeUtil.convertToFullFormat(endDate);
-      
 
-        List<ExchangeRate> list = exchangeRateRepository.findByDateBetween(startDate, endDate);
+            List<ExchangeRate> list = exchangeRateRepository.findByDateBetween(startDate, endDate);
 
-        ExchangeRate exchangeRateStartDate = exchangeRateRepository.findByDate(startDate);
-        ExchangeRate exchangeRateEndDate = exchangeRateRepository.findByDate(endDate);
-
-        // 檢查欄位
-        if (exchangeRateStartDate == null || exchangeRateEndDate == null) {
-            throw new IllegalArgumentException("Invalid date range: startDate or endDate not found in the database.");
-        }
-
-        List<Map<String, Object>> result = new ArrayList<>();
-        for (ExchangeRate rate : list) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("date", rate.getDate());
-            map.put(currency.toLowerCase(), rate.getRates().get(currency.toUpperCase()));
-            result.add(map);
-        }
-        ExchangeRateOutPut exchangeRateOutPut = new ExchangeRateOutPut();
-        exchangeRateOutPut.setCurrency(result);
-        return exchangeRateOutPut;
+            List<Map<String, Object>> result = new ArrayList<>();
+            // 將查詢結果轉換成指定格式
+            for (ExchangeRate rate : list) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("date", rate.getDate());
+                map.put(currency.toLowerCase(), rate.getRates().get(currency.toUpperCase()));
+                result.add(map);
+            }
+            ExchangeRateOutPut exchangeRateOutPut = new ExchangeRateOutPut();
+            exchangeRateOutPut.setCurrency(result);
+            return exchangeRateOutPut;
         } catch (Exception e) {
             e.printStackTrace();
             return null;

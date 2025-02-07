@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -33,11 +35,20 @@ public class DailyForeignExchangeRatesScheduled {
 
     private Gson gson = new Gson();
 
+    // 初始化時執行 doGetDailyForeignExchangeRates避免啟動時沒有資料
+    @PostConstruct
+    public void init() throws IOException, ParseException {
+        doGetDailyForeignExchangeRates();
+    }
+    /*
+     * 每天下午 6 點執行一次
+     */
     @Scheduled(cron = "0 0 18 * * ?")
     public void doGetDailyForeignExchangeRates() throws IOException, ParseException {
         String response = urlUtil.doGet(exchangeRateUrl);
 
-        Type exchangeRateListType = new TypeToken<List<Map<String, String>>>() {}.getType();
+        Type exchangeRateListType = new TypeToken<List<Map<String, String>>>() {
+        }.getType();
         List<Map<String, String>> exchangeRates = gson.fromJson(response, exchangeRateListType);
 
         if (exchangeRates == null || exchangeRates.isEmpty()) {
@@ -45,9 +56,10 @@ public class DailyForeignExchangeRatesScheduled {
             return;
         }
 
+        // 逐筆處理匯率資料
         for (Map<String, String> rate : exchangeRates) {
             if (rate == null) {
-                continue; // 如果 rates 為 null，跳過這個 rate
+                continue; 
             }
 
             String dateToSearch = rate.get("Date").trim();
@@ -55,6 +67,7 @@ public class DailyForeignExchangeRatesScheduled {
 
             ExchangeRate existingRate = exchangeRateRepository.findByDate(formattedDate);
 
+            //沒有資料就新增
             if (existingRate == null) {
                 Map<String, String> filteredRates = new HashMap<>();
                 for (Map.Entry<String, String> entry : rate.entrySet()) {

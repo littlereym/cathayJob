@@ -1,6 +1,5 @@
 package com.exchangerat.job.util;
 
- 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,20 +8,16 @@ import java.net.URL;
 
 import org.springframework.stereotype.Service;
 
-
 @Service
 public class UrlUtil {
 
- 
-    public String doGet (String url) throws IOException{
+    public String doGet(String url) throws IOException {
 
-   
-       URL apiUrl = new URL(url);
-HttpURLConnection connection = (HttpURLConnection) apiUrl.openConnection();
-            connection.setRequestMethod("GET");
+        URL apiUrl = new URL(url);
+        HttpURLConnection connection = (HttpURLConnection) apiUrl.openConnection();
+        connection.setRequestMethod("GET");
 
-             try {
-    
+        try {
 
             int responseCode = connection.getResponseCode();
             System.out.println("Response Code: " + responseCode);
@@ -43,7 +38,7 @@ HttpURLConnection connection = (HttpURLConnection) apiUrl.openConnection();
 
             return null;
         }
-           
+
     }
- 
+
 }

@@ -73,7 +73,9 @@ class JobApplicationTests {
             rates2.put("USD", "32.917");
             rate2.setRates(rates2);
     
-            when(exchangeRateRepository.findByDateBetween(anyString(), anyString())).thenReturn(Arrays.asList(rate1, rate2));
+            String startDate = "20250101";
+            String endDate = "20250104";
+            when(exchangeRateRepository.findByDateBetween(startDate, endDate)).thenReturn(Arrays.asList(rate1, rate2));
     
             // 執行方法
             Map<String, Object> params = new HashMap<>();
@@ -85,19 +87,6 @@ class JobApplicationTests {
 
             // Use the result
             System.out.println(result);
-    
-            // 印出結果
-            // for (Map<String, Object> map : result) {
-            //     System.out.println("Date: " + map.get("date"));
-            //     System.out.println("USD: " + map.get("usd"));
-            // }
-    
-            // // 驗證結果
-            // assertEquals(2, result.size());
-            // assertEquals("2025-01-02 00:00:00", result.get(0).get("date"));
-            // assertEquals("32.868", result.get(0).get("usd"));
-            // assertEquals("2025-01-03 00:00:00", result.get(1).get("date"));
-            // assertEquals("32.917", result.get(1).get("usd"));
         
     }
 }
